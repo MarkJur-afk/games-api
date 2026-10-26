@@ -19,6 +19,37 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Game'
+  /games/{id}:
+    get:
+      tags:
+        - games
+      summary: Get full details of a game
+      description: Returns full details of a given game by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Full details of a given game.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Invalid ID format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Game was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Game:
@@ -38,3 +69,10 @@ components:
           type: number
           format: float
           example: 29.99
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
