@@ -19,6 +19,8 @@ const games = [
     { id: 8, name: 'Forza Horizon 5', price: 59.99 }
 ]
 
+let nextId = Math.max(...games.map((game) => game.id)) + 1
+
 app.get('/games', (req, res) => {
     res.send(games)
 })
@@ -55,7 +57,7 @@ app.post('/games', (req, res) => {
     }
 
     const game = {
-        id: games.length + 1,
+        id: nextId++,
         name: name.trim(),
         price
     }
@@ -65,6 +67,23 @@ app.post('/games', (req, res) => {
     res.status(201)
         .location(`${getBaseUrl(req)}/games/${game.id}`)
         .send(game)
+})
+
+app.delete('/games/:id', (req, res) => {
+    const id = Number.parseInt(req.params.id, 10)
+
+    if (Number.isNaN(id)) {
+        return res.status(400).send({ error: 'Invalid ID format' })
+    }
+
+    const index = games.findIndex((game) => game.id === id)
+
+    if (index === -1) {
+        return res.status(404).send({ error: 'Game not found' })
+    }
+
+    games.splice(index, 1)
+    res.status(204).end()
 })
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
