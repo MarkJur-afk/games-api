@@ -21,6 +21,31 @@ const games = [
 
 let nextId = Math.max(...games.map((game) => game.id)) + 1
 
+const isAuthenticated = (req, res, next) => {
+    const userId = Number.parseInt(req.header('x-user-id'), 10)
+
+    if (![1, 2].includes(userId)) {
+        return res.status(401).send({ error: 'Unauthorized: x-user-id must be 1 or 2' })
+    }
+
+    req.userId = userId
+    next()
+}
+
+const isAdmin = (req, res, next) => {
+    const userId = Number.parseInt(req.header('x-user-id'), 10)
+
+    if (![1, 2].includes(userId)) {
+        return res.status(401).send({ error: 'Unauthorized: x-user-id must be 1 or 2' })
+    }
+
+    if (userId !== 1) {
+        return res.status(403).send({ error: 'Access denied: Admin role required' })
+    }
+
+    next()
+}
+
 app.get('/games', (req, res) => {
     res.send(games)
 })
@@ -41,7 +66,7 @@ app.get('/games/:id', (req, res) => {
     res.send(game)
 })
 
-app.post('/games', (req, res) => {
+app.post('/games', isAuthenticated, (req, res) => {
     const { name, price } = req.body
 
     if (!name || price === undefined || price === null) {
@@ -69,7 +94,7 @@ app.post('/games', (req, res) => {
         .send(game)
 })
 
-app.delete('/games/:id', (req, res) => {
+app.delete('/games/:id', isAdmin, (req, res) => {
     const id = Number.parseInt(req.params.id, 10)
 
     if (Number.isNaN(id)) {

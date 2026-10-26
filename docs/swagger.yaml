@@ -24,6 +24,8 @@ paths:
         - new-game
       summary: Creates a game
       description: Creates a new game.
+      security:
+        - UserIdAuth: []
       requestBody:
         required: true
         description: A new game to be created.
@@ -51,6 +53,12 @@ paths:
                 $ref: '#/components/schemas/Error'
         '409':
           description: A game with this title already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid x-user-id header.
           content:
             application/json:
               schema:
@@ -91,6 +99,8 @@ paths:
         - delete-game
       summary: Deletes a game
       description: Deletes a game by ID.
+      security:
+        - UserIdAuth: []
       parameters:
         - name: id
           in: path
@@ -112,7 +122,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid x-user-id header.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Admin role is required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
+  securitySchemes:
+    UserIdAuth:
+      type: apiKey
+      in: header
+      name: x-user-id
+      description: Use 1 for admin or 2 for regular user.
   schemas:
     Game:
       type: object
