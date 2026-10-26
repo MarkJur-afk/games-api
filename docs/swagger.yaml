@@ -19,6 +19,42 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Game'
+    post:
+      tags:
+        - new-game
+      summary: Creates a game
+      description: Creates a new game.
+      requestBody:
+        required: true
+        description: A new game to be created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewGame'
+      responses:
+        '201':
+          description: Game created successfully.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URL of the newly created game.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: One or more required parameters are missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: A game with this title already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /games/{id}:
     get:
       tags:
@@ -76,3 +112,16 @@ components:
       properties:
         error:
           type: string
+    NewGame:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+          example: Tetris
+        price:
+          type: number
+          format: float
+          example: 0.99
