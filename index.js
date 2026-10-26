@@ -1,6 +1,8 @@
 const app = require('express')()
 const port = 8080
 
+app.use(require('express').json())
+
 const swaggerUi = require('swagger-ui-express')
 
 const yamljs = require('yamljs')
@@ -22,7 +24,23 @@ app.get('/games', (req, res) => {
 })
 
 app.get('/games/:id', (req, res) => {
-    res.send(games[req.params.id - 1])
+    const game = games[req.params.id - 1]
+
+    if (!game) {
+        return res.status(404).end()
+    }
+
+    res.send(game)
+})
+
+app.post('/games', (req, res) => {
+    games.push({
+        id: games.length + 1,
+        price: req.body.price,
+        name: req.body.name
+    })
+
+    res.status(201).end()
 })
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
